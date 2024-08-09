@@ -1,0 +1,28 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+env:
+  # 设置 docker 镜像名
+  IMAGE_NAME: java17maven3.9
+  
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag $IMAGE_NAME
+    - name: Log into registry
+      run: echo "${{ secrets.ACCESS_TOKEN }}" | docker login -u wmn1525 --password-stdin
+    - name: Push image
+      run: |
+           IMAGE_ID=wmn1525/$IMAGE_NAME
+           docker tag $IMAGE_NAME $IMAGE_ID:latest
+           docker push $IMAGE_ID:latest
